@@ -18,13 +18,14 @@ import com.pushtech.crawler.serialization.AbstractDAOEntity;
 import com.pushtech.crawler.serialization.DAOFactory;
 import com.pushtech.crawler.serialization.DataBaseDAO;
 import com.pushtech.crawler.serialization.ProductDAO;
-
+import static com.pushtech.crawler.logging.LoggingHelper.*;
 /**
  * Created by Workdev on 10/06/2016.
  */
 public class Crawl {
    public Crawl(String entryPointUrl) {
       // try {
+	   logger.info("Begin crawl");
       Page page = null;
       String urlToConnect = entryPointUrl;
       try {
@@ -44,6 +45,7 @@ public class Crawl {
                jop.showMessageDialog(null, "Crawl failed", "Error", JOptionPane.ERROR_MESSAGE);
             }
          });
+         logger.fatal(e.getMessage());
       }
       // new JOptionPane("Crawl ended");
       // CSVService csvService = new CSVService();
@@ -60,7 +62,7 @@ public class Crawl {
             jop.showMessageDialog(null, "Crawl ended", "Information", JOptionPane.INFORMATION_MESSAGE);
          }
       });
-
+      logger.info("Crawl ended");
    }
 
    public static Page getPageFromUrl(final String url, EngineContext.MethodType methodeType) {
@@ -107,7 +109,7 @@ public class Crawl {
             indexProduit++;
             // break;
          } catch (Exception e) {
-            System.out.println("error =>>> IMPOSSIBLE DE SE CONNECTER");
+        	 logger.error(""+e.getMessage());
          }
       }
       return getNextPageLink(listingPage.getDoc());

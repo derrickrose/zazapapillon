@@ -4,6 +4,8 @@ import java.awt.BorderLayout;
 
 import javax.swing.JFrame;
 import javax.swing.JLabel;
+import javax.swing.JPanel;
+import javax.swing.JTabbedPane;
 import javax.swing.SwingUtilities;
 import javax.swing.UIManager;
 import javax.swing.UnsupportedLookAndFeelException;
@@ -13,23 +15,25 @@ import org.apache.log4j.Logger;
 public class FirstVersionIHM extends JFrame {
 
 	private static Logger logger = Logger.getLogger(FirstVersionIHM.class);
-	
 	public FirstVersionIHM(String strTitle) {
+		JTabbedPane jTabbedPane = new JTabbedPane();
+		JPanel jpnl = new JPanel();
+		JPanel config = new JPanel();
 		this.setTitle(strTitle);
-		this.setSize(700, 220);
+		this.setSize(700, 240);
 		this.setLocationRelativeTo(null);
 		this.setResizable(false);
 		this.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
 		JLabel title = new JLabel(" ");
-		this.getContentPane().setLayout(new BorderLayout());
-		this.add(title, BorderLayout.NORTH);
-		this.add(new JLabel("               "), BorderLayout.WEST);
-		this.add(new JLabel("               "), BorderLayout.EAST);
-		this.getContentPane().add(new DefaultPanel(), BorderLayout.CENTER);
+		jpnl.setLayout(new BorderLayout());
+		jpnl.add(title, BorderLayout.NORTH);
+		jpnl.add(new JLabel("               "), BorderLayout.WEST);
+		jpnl.add(new JLabel("               "), BorderLayout.EAST);
+		jpnl.add(new DefaultPanel(), BorderLayout.CENTER);
+		jTabbedPane.addTab("Crawl entry points", jpnl);
+		jTabbedPane.addTab("Data base config", new JPanel());
+		this.add(jTabbedPane);
 		this.setVisible(true);
-
-		this.setVisible(true);
-
 	}
 
 	public static void main(String[] args) {
@@ -52,7 +56,7 @@ public class FirstVersionIHM extends JFrame {
 		SwingUtilities.invokeLater(new Runnable() {
 			@Override
 			public void run() {
-				FirstVersionIHM fvihm = new FirstVersionIHM("Alco Distribution");
+				FirstVersionIHM fvihm = new FirstVersionIHM("Alcodistributions crawler");
 				fvihm.setOpacity((float) 0.0);
 			}
 		});

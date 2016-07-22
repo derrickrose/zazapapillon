@@ -22,7 +22,7 @@ import org.jsoup.select.Elements;
 
 import com.pushtech.commons.Product;
 import com.pushtech.crawler.beans.Page;
-
+import static com.pushtech.crawler.logging.LoggingHelper.*;
 public class CrawlOffer {
    private static final Locale CURRENT_LOCALE = Locale.getDefault();
 
@@ -44,10 +44,10 @@ public class CrawlOffer {
       try {
          name = getName(productPageDocument);
       } catch (Exception e) {
-         e.printStackTrace();
+        logger.error(e.getMessage()+" on "+page.getUrl() );
       }
       product.setName(name);
-      System.out.println("Name : " + name);
+      logger.debug("Name : " + name);
 
       // String link = null;
       // try {
@@ -62,63 +62,63 @@ public class CrawlOffer {
       try {
          description = getDescription(productPageDocument);
       } catch (Exception e) {
-         e.printStackTrace();
+    	  logger.error(e.getMessage()+" on "+page.getUrl() );
       }
       product.setDescription(description);
-      System.out.println("Description : " + description);
+      logger.debug("Description : " + description);
 
       String brand = "";
       product.setBrand(brand);
-      System.out.println("Brand : " + brand);
+      logger.debug("Brand : " + brand);
 
       String category = null;
       try {
          category = getCategory(productPageDocument);
          product.setCategory(category);
       } catch (Exception e) {
-         e.printStackTrace();
+    	  logger.error(e.getMessage()+" on "+page.getUrl() );
       }
-      System.out.println("Category : " + category);
+      logger.debug("Category : " + category);
 
       String image = null;
       try {
          image = getImage(productPageDocument);
       } catch (Exception e) {
-         e.printStackTrace();
+    	  logger.error(e.getMessage()+" on "+page.getUrl() );
       }
       product.setImage(image);
-      System.out.println("Image : " + image);
+      logger.debug("Image : " + image);
 
       float price = -1f;
       try {
          price = getPrice(productPageDocument);
       } catch (Exception e) {
-         e.printStackTrace();
+    	  logger.error(e.getMessage()+" on "+page.getUrl() );
       }
       product.setPrice(price);
-      System.out.println("Price : " + price);
+      logger.debug("Price : " + price);
 
       String strKeyWord = null;
       try {
          strKeyWord = getKeywords(productPageDocument);
       } catch (Exception e) {
          // TODO Auto-generated catch block
-         e.printStackTrace();
+    	  logger.error(e.getMessage()+" on "+page.getUrl() );
       }
       product.setKeyWord(strKeyWord);
-      System.out.println("KeyWord : " + strKeyWord);
+      logger.debug("KeyWord : " + strKeyWord);
 
       float shippingCost = -1f;
       product.setShippingCost(shippingCost);
-      System.out.println("Shipping cost : " + shippingCost);
+      logger.debug("Shipping cost : " + shippingCost);
 
       int shippingDelay = 0;
       product.setShippingDelay(shippingDelay);
-      System.out.println("Shipping delay : " + shippingDelay);
+      logger.debug("Shipping delay : " + shippingDelay);
 
       int quantity = 0;
       product.setQuantity(quantity);
-      System.out.println("Quantity : " + quantity);
+      logger.debug("Quantity : " + quantity);
 
       return product;
    }
@@ -275,7 +275,7 @@ public class CrawlOffer {
       if (isExpressedAsDate(rawDelivery)) { // Ex : rawDelivery -> "date de livraison : 02-05-2016"
          return parseLocalizedDateDelivery(rawDelivery);
       }
-      System.err.println("New form of raw delivery found [" + rawDelivery + "]");
+      logger.error("New form of raw delivery found [" + rawDelivery + "]");
       return null;
    }
 
@@ -286,7 +286,7 @@ public class CrawlOffer {
          final LocalDateTime localDateTime = LocalDateTime.parse(delivery, dateTimeFormatter);
          return localDateTime.toDateTime().plusDays(1);
       } catch (Exception exc) {
-         System.err.println("Delivery date not parseable [" + delivery + "]");
+    	  logger.error("Delivery date not parseable [" + delivery + "]");
          // conn.debug(ExceptionUtils.getStackTrace(exc));
       }
       return null;
@@ -299,7 +299,7 @@ public class CrawlOffer {
          final Period period = periodFormatter.parsePeriod(delivery);
          return new DateTime().plus(period).plusHours(5);
       } catch (Exception exc) {
-         System.err.println("Delivery period not parseable [" + delivery + "]");
+    	  logger.error("Delivery period not parseable [" + delivery + "]");
          // conn.debug(ExceptionUtils.getStackTrace(exc));
       }
       return null;
@@ -331,7 +331,7 @@ public class CrawlOffer {
             // return (float) (priceNumber.floatValue() * (1 + (19.8 / 100)));
             return priceNumber.floatValue();
          } catch (ParseException pexc) {
-            System.err.println("Price number not parseable [" + priceText + "]");
+        	 logger.error("Price number not parseable [" + priceText + "]");
          }
       }
       return -1f;
@@ -375,8 +375,8 @@ public class CrawlOffer {
 
    private String validateField(final String value, final String name, final int log) {
       if (StringUtils.isBlank(value)) {
-         if (log == 2) System.err.println("" + name + " not found");
-         else if (log == 1) System.out.println("WARN!!! : " + "" + name + " not found");
+         if (log == 2) logger.error("" + name + " not found");
+         else if (log == 1) logger.warn( "" + name + " not found");
          return StringUtils.EMPTY;
       }
       return value;

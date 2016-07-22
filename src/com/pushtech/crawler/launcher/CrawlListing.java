@@ -5,6 +5,8 @@ import org.jsoup.nodes.Document;
 import org.jsoup.nodes.Element;
 import org.jsoup.select.Elements;
 import static com.pushtech.commons.UriHandler.cleanPath;
+import static com.pushtech.crawler.logging.LoggingHelper.logger;
+
 import com.pushtech.crawler.beans.Page;
 
 public class CrawlListing {
@@ -15,7 +17,7 @@ public class CrawlListing {
       Elements items = getOffers(document);
       for (Element item : items) {
          String link = getProductLink(item);
-         System.out.println("Path :" + link);
+         logger.debug("Path :" + link);
          // for (char a : link.toCharArray()) {
          // System.err.println(" " + ((int) a) + " " + a);
          // }
@@ -35,7 +37,7 @@ public class CrawlListing {
    public static String getNextPageLink(Document doc) {
       Element nextPageElement = getNextPageElement(doc);
       String nextPageLink = fromUrlAttribute(nextPageElement);
-      System.out.println("Next page : " + nextPageLink);
+      logger.debug("Next page : " + nextPageLink);
       return nextPageLink;
    }
    
@@ -45,7 +47,7 @@ public class CrawlListing {
 			id = url.substring(url.indexOf("articulo/") + "articulo/".length());
 			id = id.substring(0, id.indexOf("/"));
 		}
-		System.out.println("Id : " + id);
+		logger.debug("Id : " + id);
 		return id;
 	}
 
@@ -60,7 +62,7 @@ public class CrawlListing {
       if (product != null) {
          return cleanPath(product.attr("href"));
       } else {
-         System.out.println("Error listing");
+    	  logger.debug("Error listing");
       }
       return "";
    }

@@ -13,7 +13,7 @@ import org.apache.commons.lang3.StringUtils;
 import org.apache.http.HttpResponse;
 import org.jsoup.nodes.Document;
 import org.jsoup.select.Elements;
-
+import static com.pushtech.crawler.logging.LoggingHelper.*;
 import java.util.ArrayList;
 
 import static com.pushtech.crawler.launcher.CrawlListing.getNextPageLink;
@@ -46,12 +46,12 @@ public class TreatCrawl {
                         } else if (PageType.isListingPage(page)) {
                             int indexProduit = 0;
                             for (String link : CrawlListing.getProductLinks(page)) {
-                                System.out.println("-------------------- Produit n* " + indexProduit + " --------------------");
+                                logger.debug("-------------------- Product n* " + indexProduit + " --------------------");
 
                                 Product product = new Product();
-                                System.out.println("Link : " + link);
+                                logger.debug("Link : " + link);
                                 String productId = getIdFromLink(link);
-                                System.out.println("Product Id :" + productId);
+                                logger.debug("Product Id :" + productId);
                                 // if(Persistance.lireEnBase()){
                                 // continue;
                                 // }
@@ -74,7 +74,7 @@ public class TreatCrawl {
                                     indexProduit++;
                                     // break;
                                 } catch (Exception e) {
-                                    System.out.println("error =>>> IMPOSSIBLE DE SE CONNECTER");
+                                	logger.error("Error =>>> treat product failed");
                                 }
 
                             }
@@ -99,12 +99,11 @@ public class TreatCrawl {
         ArrayList<String> listes = new ArrayList<String>();
         Page productPage = getPageFromUrl(link, EngineContext.MethodType.GET_METHOD);
         Document doc = productPage.getDoc();
-        System.out.println("eto");
         
         Elements elts = doc.select(Selectors.ALL_LISTING);
         if (elts.size() > 0) {
             for (org.jsoup.nodes.Element data : elts) {
-                System.out.println("Url :" + data.attr("href"));
+                logger.debug("Url :" + data.attr("href"));
                 listes.add(cleanPath(data.attr("href")));
             }
         }
@@ -144,7 +143,7 @@ public class TreatCrawl {
             id = url.substring(url.indexOf("articulo/") + "articulo/".length());
             id = id.substring(0, id.indexOf("/"));
         }
-        System.out.println("Id : " + id);
+        logger.debug("Id : " + id);
         return id;
     }
 }

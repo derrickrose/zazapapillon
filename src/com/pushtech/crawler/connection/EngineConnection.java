@@ -11,7 +11,7 @@ import org.apache.http.conn.routing.HttpRoutePlanner;
 import org.apache.http.impl.client.DefaultHttpClient;
 import org.apache.http.params.CoreConnectionPNames;
 import org.apache.http.protocol.HttpContext;
-
+import static com.pushtech.crawler.logging.LoggingHelper.*;
 public class EngineConnection {
     // TODO set proxy , set time out , set cookie policy
 
@@ -58,6 +58,9 @@ public class EngineConnection {
 	    };
 	    httpclient.getParams().setParameter(ConnRouteParams.DEFAULT_PROXY, proxyHost);
 	    httpclient.setRoutePlanner(routePlanner);
+	    logger.info("Engine configured with proxy - "+proxy+":"+proxyPort);
+	}else{
+		logger.info("Engine configured without proxy");
 	}
 	return httpclient;
     }

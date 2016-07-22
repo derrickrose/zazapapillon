@@ -2,6 +2,7 @@ package com.pushtech.crawler.launcher;
 
 import static com.pushtech.commons.UriHandler.cleanPath;
 import static com.pushtech.crawler.launcher.Crawl.getPageFromUrl;
+import static com.pushtech.crawler.logging.LoggingHelper.logger;
 
 import java.util.ArrayList;
 
@@ -31,7 +32,7 @@ public class CrawlHome {
       if (elts.size() > 0) {
          for (Element data : elts) {
             String url = data.attr("href");
-            System.out.println("Url :" + url);
+            logger.debug("Url :" + url);
             boolean toExclude = false;
             boolean inClude = false;
 
@@ -55,7 +56,7 @@ public class CrawlHome {
             // System.err.println("" + sph.getInclude().size() + " " + inClude);
 
             if ((sph.getInclude().size() > 0 && inClude == false) || toExclude == true) {
-               System.err.println("toexclude : " + url);
+            	logger.error("Url to exclude : " + url);
             } else {
                allListing.add(cleanPath(url));
             }

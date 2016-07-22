@@ -126,8 +126,6 @@ public class DefaultPanel extends JPanel {
 						// ulterieurement
 						FormHandler.validateForm(linkToCrawl, dataBaseLink,
 								dataBaseUser, userPassWord);
-						System.out.println("=====> "
-								+ FormHandler.getForm().getLinkToCrawl());
 						
 						 crawlThread = new Thread(new Crawler());
 						launch.getComponent().setEnabled(false);
@@ -144,16 +142,16 @@ public class DefaultPanel extends JPanel {
 	private void startThread(Thread t){
 		t.start();
 //		System.out.println("Thread started "+t.getName());
-		logger.error("Thread started "+t.getName());
+		logger.info("Thread started "+t.getName());
 	}
 	
 	private void stopThread(Thread t){
 		t.stop();
 //		System.out.println("Thread stoped "+t.getName());
-		logger.error("Thread stoped "+t.getName());
+		logger.info("Thread stoped "+t.getName());
 	}
 	
 	private void pauseThread(Thread t){
-		System.out.println("Thread waiting "+t.getName());
+		logger.info("Thread waiting "+t.getName());
 	}
 }
