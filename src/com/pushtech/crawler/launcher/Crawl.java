@@ -16,6 +16,10 @@ import com.pushtech.crawler.beans.Page;
 import com.pushtech.crawler.connection.ConnectionHandler;
 import com.pushtech.crawler.connection.EngineContext;
 import com.pushtech.crawler.parsing.ParserFactory;
+import com.pushtech.crawler.serialization.AbstractDAOEntity;
+import com.pushtech.crawler.serialization.DAOFactory;
+import com.pushtech.crawler.serialization.DataBaseDAO;
+import com.pushtech.crawler.serialization.ProductDAO;
 
 /**
  * Created by Workdev on 10/06/2016.
@@ -45,14 +49,6 @@ public class Crawl {
          });
          logger.fatal(e.getMessage());
       }
-      // new JOptionPane("Crawl ended");
-      // CSVService csvService = new CSVService();
-      // csvService.buildCSV(products, ";");
-      // } catch (Exception e) {
-      // e.printStackTrace();
-      // } finally {
-      // }
-      // TODO nice to be replaced by observer
       SwingUtilities.invokeLater(new Runnable() {
          @Override
          public void run() {
@@ -80,14 +76,11 @@ public class Crawl {
       System.out.println("Link : " + productPath);
       String productId = CrawlListing.getProductId(page.getDoc());
       System.out.println("Product Id :" + productId);
-      // if(Persistance.lireEnBase()){
-      // continue;
-      // }
       product.setLink(productPath);
       product.setId(productId);
-      // DAOFactory daoFactory = new DataBaseDAO().getFactoryInstance();
-      // AbstractDAOEntity daoEntity = new ProductDAO(daoFactory);
-      // daoEntity.updateEntity(product);
+      DAOFactory daoFactory = new DataBaseDAO().getFactoryInstance();
+      AbstractDAOEntity daoEntity = new ProductDAO(daoFactory);
+      daoEntity.updateEntity(product);
    }
 
    private void homeCrawling(Page homePage) {
