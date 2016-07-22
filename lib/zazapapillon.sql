@@ -23,10 +23,10 @@ SET time_zone = "+00:00";
 -- --------------------------------------------------------
 
 --
--- Structure de la table `alcodistribution`
+-- Structure de la table `zazapapillon`
 --
 
-CREATE TABLE `alcodistribution` (
+CREATE TABLE `zazapapillon` (
   `productId` varchar(15) NOT NULL,
   `Name` varchar(255) NOT NULL,
   `link` varchar(600) NOT NULL,
@@ -47,9 +47,9 @@ CREATE TABLE `alcodistribution` (
 --
 
 --
--- Index pour la table `alcodistribution`
+-- Index pour la table `zazapapillon`
 --
-ALTER TABLE `alcodistribution`
+ALTER TABLE `zazapapillon`
   ADD PRIMARY KEY (`productId`);
 
 /*!40101 SET CHARACTER_SET_CLIENT=@OLD_CHARACTER_SET_CLIENT */;
