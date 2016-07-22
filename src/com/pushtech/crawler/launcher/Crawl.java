@@ -1,8 +1,10 @@
 package com.pushtech.crawler.launcher;
 
 import static com.pushtech.crawler.launcher.CrawlListing.getNextPageLink;
+import static com.pushtech.crawler.logging.LoggingHelper.logger;
 
 import java.util.ArrayList;
+import java.util.HashMap;
 
 import javax.swing.JOptionPane;
 import javax.swing.SwingUtilities;
@@ -14,18 +16,14 @@ import com.pushtech.crawler.beans.Page;
 import com.pushtech.crawler.connection.ConnectionHandler;
 import com.pushtech.crawler.connection.EngineContext;
 import com.pushtech.crawler.parsing.ParserFactory;
-import com.pushtech.crawler.serialization.AbstractDAOEntity;
-import com.pushtech.crawler.serialization.DAOFactory;
-import com.pushtech.crawler.serialization.DataBaseDAO;
-import com.pushtech.crawler.serialization.ProductDAO;
-import static com.pushtech.crawler.logging.LoggingHelper.*;
+
 /**
  * Created by Workdev on 10/06/2016.
  */
 public class Crawl {
    public Crawl(String entryPointUrl) {
       // try {
-	   logger.info("Begin crawl");
+      logger.info("Begin crawl");
       Page page = null;
       String urlToConnect = entryPointUrl;
       try {
@@ -34,7 +32,7 @@ public class Crawl {
             offerCrawling(page, urlToConnect);
          } else if (PageType.isListingPage(page)) {
             listingCrawling(page);
-         } else if (entryPointUrl.equals("http://www.alcodistributions.fr") || entryPointUrl.endsWith("http://www.alcodistributions.fr/")) {
+         } else if (entryPointUrl.equals("http://www.zazapapillon.fr/") || entryPointUrl.endsWith("http://www.zazapapillon.fr/")) {
             homeCrawling(page);// home page � faire
          }
       } catch (Exception e) {
@@ -68,7 +66,10 @@ public class Crawl {
    public static Page getPageFromUrl(final String url, EngineContext.MethodType methodeType) {
       Page page = null;
       HttpResponse response = null;
-      response = ConnectionHandler.getResponse(url, null, null, methodeType);
+      HashMap<String, String> headers = new HashMap<String, String>();
+      headers.put("Cookie", "frontend=9ela5n93h9g5prtac32r9bqpl7; newsletter=true; cookie_consent=accepted; compte=110065");
+      headers.put("Host", "www.zazapapillon.fr");
+      response = ConnectionHandler.getResponse(url, null, headers, methodeType);
       page = (Page) ParserFactory.getAppropriateParsingTemplate(response).parse(url, response, null);
 
       return page;
@@ -77,16 +78,16 @@ public class Crawl {
    private void offerCrawling(Page page, String productPath) {
       Product product = new CrawlOffer().doAction(page);
       System.out.println("Link : " + productPath);
-      String productId = CrawlListing.getIdFromLink(productPath);
+      String productId = CrawlListing.getProductId(page.getDoc());
       System.out.println("Product Id :" + productId);
       // if(Persistance.lireEnBase()){
       // continue;
       // }
       product.setLink(productPath);
       product.setId(productId);
-      DAOFactory daoFactory = new DataBaseDAO().getFactoryInstance();
-      AbstractDAOEntity daoEntity = new ProductDAO(daoFactory);
-      daoEntity.updateEntity(product);
+      // DAOFactory daoFactory = new DataBaseDAO().getFactoryInstance();
+      // AbstractDAOEntity daoEntity = new ProductDAO(daoFactory);
+      // daoEntity.updateEntity(product);
    }
 
    private void homeCrawling(Page homePage) {
@@ -109,7 +110,7 @@ public class Crawl {
             indexProduit++;
             // break;
          } catch (Exception e) {
-        	 logger.error(""+e.getMessage());
+            logger.error("" + e.getMessage());
          }
       }
       return getNextPageLink(listingPage.getDoc());

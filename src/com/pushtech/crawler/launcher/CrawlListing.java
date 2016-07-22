@@ -1,11 +1,13 @@
 package com.pushtech.crawler.launcher;
 
+import static com.pushtech.commons.UriHandler.cleanPath;
+import static com.pushtech.crawler.logging.LoggingHelper.logger;
+
 import java.util.ArrayList;
+
 import org.jsoup.nodes.Document;
 import org.jsoup.nodes.Element;
 import org.jsoup.select.Elements;
-import static com.pushtech.commons.UriHandler.cleanPath;
-import static com.pushtech.crawler.logging.LoggingHelper.logger;
 
 import com.pushtech.crawler.beans.Page;
 
@@ -18,9 +20,7 @@ public class CrawlListing {
       for (Element item : items) {
          String link = getProductLink(item);
          logger.debug("Path :" + link);
-         // for (char a : link.toCharArray()) {
-         // System.err.println(" " + ((int) a) + " " + a);
-         // }
+
          productLinks.add(link);
       }
       return productLinks;
@@ -40,16 +40,14 @@ public class CrawlListing {
       logger.debug("Next page : " + nextPageLink);
       return nextPageLink;
    }
-   
-   public static String getIdFromLink(String url) {
-		String id = null;
-		if (url.contains("articulo")) {
-			id = url.substring(url.indexOf("articulo/") + "articulo/".length());
-			id = id.substring(0, id.indexOf("/"));
-		}
-		logger.debug("Id : " + id);
-		return id;
-	}
+
+   public static String getProductId(Element product) {
+      Element skuproductElement = product.select(Selectors.PRODUCT_IDENTIFIER).first();
+      if (skuproductElement != null) {
+         return skuproductElement.text().replace("Ref.", "").trim();
+      }
+      return null;
+   }
 
    private static String fromUrlAttribute(Element element) {
       String url = null;
@@ -62,9 +60,9 @@ public class CrawlListing {
       if (product != null) {
          return cleanPath(product.attr("href"));
       } else {
-    	  logger.debug("Error listing");
+         logger.debug("Error listing");
       }
       return "";
    }
-   
+
 }

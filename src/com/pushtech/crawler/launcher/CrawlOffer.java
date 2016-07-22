@@ -1,5 +1,7 @@
 package com.pushtech.crawler.launcher;
 
+import static com.pushtech.crawler.logging.LoggingHelper.logger;
+
 import java.text.NumberFormat;
 import java.text.ParseException;
 import java.util.Locale;
@@ -22,7 +24,7 @@ import org.jsoup.select.Elements;
 
 import com.pushtech.commons.Product;
 import com.pushtech.crawler.beans.Page;
-import static com.pushtech.crawler.logging.LoggingHelper.*;
+
 public class CrawlOffer {
    private static final Locale CURRENT_LOCALE = Locale.getDefault();
 
@@ -31,38 +33,20 @@ public class CrawlOffer {
       Product product = new Product();
       final Document productPageDocument = page.getDoc();
 
-      // String strProductId = null;
-      // try {
-      // strProductId = getProductId(productPageDocument);
-      // } catch (Exception e1) {
-      // e1.printStackTrace();
-      // }
-      // product.setId(strProductId);
-      // System.out.println("Product Id : " + strProductId);
-
       String name = null;
       try {
          name = getName(productPageDocument);
       } catch (Exception e) {
-        logger.error(e.getMessage()+" on "+page.getUrl() );
+         logger.error(e.getMessage() + " on " + page.getUrl());
       }
       product.setName(name);
       logger.debug("Name : " + name);
-
-      // String link = null;
-      // try {
-      // link = getLink(productPageDocument);
-      // } catch (Exception e) {
-      // e.printStackTrace();
-      // }
-      // product.setLink(link);
-      // System.out.println("Link : " + link);
 
       String description = null;
       try {
          description = getDescription(productPageDocument);
       } catch (Exception e) {
-    	  logger.error(e.getMessage()+" on "+page.getUrl() );
+         logger.error(e.getMessage() + " on " + page.getUrl());
       }
       product.setDescription(description);
       logger.debug("Description : " + description);
@@ -76,7 +60,7 @@ public class CrawlOffer {
          category = getCategory(productPageDocument);
          product.setCategory(category);
       } catch (Exception e) {
-    	  logger.error(e.getMessage()+" on "+page.getUrl() );
+         logger.error(e.getMessage() + " on " + page.getUrl());
       }
       logger.debug("Category : " + category);
 
@@ -84,7 +68,7 @@ public class CrawlOffer {
       try {
          image = getImage(productPageDocument);
       } catch (Exception e) {
-    	  logger.error(e.getMessage()+" on "+page.getUrl() );
+         logger.error(e.getMessage() + " on " + page.getUrl());
       }
       product.setImage(image);
       logger.debug("Image : " + image);
@@ -93,18 +77,13 @@ public class CrawlOffer {
       try {
          price = getPrice(productPageDocument);
       } catch (Exception e) {
-    	  logger.error(e.getMessage()+" on "+page.getUrl() );
+         logger.error(e.getMessage() + " on " + page.getUrl());
       }
       product.setPrice(price);
       logger.debug("Price : " + price);
 
-      String strKeyWord = null;
-      try {
-         strKeyWord = getKeywords(productPageDocument);
-      } catch (Exception e) {
-         // TODO Auto-generated catch block
-    	  logger.error(e.getMessage()+" on "+page.getUrl() );
-      }
+      String strKeyWord = "Empty";
+
       product.setKeyWord(strKeyWord);
       logger.debug("KeyWord : " + strKeyWord);
 
@@ -177,8 +156,7 @@ public class CrawlOffer {
 
    private String getCategory(final Document productPageDocument) throws Exception {
       final Element categoryElement = findElement(productPageDocument, Selectors.PRODUCT_CATEGORY); // TODO
-      // String category = fromElementText(categoryElement);
-      String category = fromOwnElementText(categoryElement);
+      String category = fromElementText(categoryElement);
       category = cleanCategory(validateField(category, "Category"));
       return category;
    }
@@ -201,8 +179,8 @@ public class CrawlOffer {
    }
 
    private float getPrice(final Element element) {
-      final Element priceElement = findElement(element, Selectors.PRODUCT_PRICE);// TODO
-      String priceRaw = fromAttribute(priceElement, "value");
+      final Element priceElement = findElement(element, Selectors.PRODUCT_PRICE);
+      String priceRaw = priceElement.text();
       priceRaw = validateField(priceRaw, "Price", 1);
       return parseLocalizedPrice(priceRaw);
    }
@@ -212,20 +190,20 @@ public class CrawlOffer {
       // String ShippingCostRaw = fromElementText(shippingCostElement);
       // ShippingCostRaw = validateField(ShippingCostRaw, "Shipping price", 0);
       // return parseLocalizedPrice(ShippingCostRaw);
-      return 3.9f;
+      return -1f;
    }
 
-   // private int getQuantity(final Element element) throws Exception {
-   // Element quantityElement = findElement(element, Selectors.PRODUCT_QUANTITY);// TODO
-   // String quantityRaw = fromElementText(quantityElement);
-   // quantityRaw = validateField(quantityRaw, "Quantity", 1);
-   // try {
-   // return Integer.parseInt(quantityRaw.replaceAll("[^\\d]", ""));
-   // } catch (Exception e) {
-   // System.err.println("Unparsable quantity raw : " + quantityRaw);
-   // return 0;
-   // }
-   // }
+   private int getQuantity(final Element element) throws Exception {
+      Element quantityElement = findElement(element, Selectors.PRODUCT_QUANTITY);// TODO
+      String quantityRaw = fromElementText(quantityElement);
+      quantityRaw = validateField(quantityRaw, "Quantity", 1);
+      try {
+         return Integer.parseInt(quantityRaw.replaceAll("[^\\d]", ""));
+      } catch (Exception e) {
+         System.err.println("Unparsable quantity raw : " + quantityRaw);
+         return 0;
+      }
+   }
 
    private int getShippingDelay(final String delayRaw) {// TODO
       // if (StringUtils.isNotBlank(delayRaw)) {
@@ -286,7 +264,7 @@ public class CrawlOffer {
          final LocalDateTime localDateTime = LocalDateTime.parse(delivery, dateTimeFormatter);
          return localDateTime.toDateTime().plusDays(1);
       } catch (Exception exc) {
-    	  logger.error("Delivery date not parseable [" + delivery + "]");
+         logger.error("Delivery date not parseable [" + delivery + "]");
          // conn.debug(ExceptionUtils.getStackTrace(exc));
       }
       return null;
@@ -299,7 +277,7 @@ public class CrawlOffer {
          final Period period = periodFormatter.parsePeriod(delivery);
          return new DateTime().plus(period).plusHours(5);
       } catch (Exception exc) {
-    	  logger.error("Delivery period not parseable [" + delivery + "]");
+         logger.error("Delivery period not parseable [" + delivery + "]");
          // conn.debug(ExceptionUtils.getStackTrace(exc));
       }
       return null;
@@ -331,7 +309,7 @@ public class CrawlOffer {
             // return (float) (priceNumber.floatValue() * (1 + (19.8 / 100)));
             return priceNumber.floatValue();
          } catch (ParseException pexc) {
-        	 logger.error("Price number not parseable [" + priceText + "]");
+            logger.error("Price number not parseable [" + priceText + "]");
          }
       }
       return -1f;
@@ -360,7 +338,6 @@ public class CrawlOffer {
       if (element != null) {
          String text = element.ownText();
          text = StringEscapeUtils.unescapeHtml4(text);
-         // text = text.replace(CARACTERE_ESPACE, " ");
          return StringUtils.trim(text);
       }
       return null;
@@ -376,7 +353,7 @@ public class CrawlOffer {
    private String validateField(final String value, final String name, final int log) {
       if (StringUtils.isBlank(value)) {
          if (log == 2) logger.error("" + name + " not found");
-         else if (log == 1) logger.warn( "" + name + " not found");
+         else if (log == 1) logger.warn("" + name + " not found");
          return StringUtils.EMPTY;
       }
       return value;
