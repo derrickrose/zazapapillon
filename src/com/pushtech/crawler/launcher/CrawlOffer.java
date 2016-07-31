@@ -23,6 +23,7 @@ import org.jsoup.nodes.Element;
 import org.jsoup.select.Elements;
 
 import com.pushtech.commons.Product;
+import com.pushtech.commons.SpecialChar;
 import com.pushtech.crawler.beans.Page;
 
 public class CrawlOffer {
@@ -92,10 +93,16 @@ public class CrawlOffer {
       logger.debug("Shipping cost : " + shippingCost);
 
       int shippingDelay = 0;
+      shippingDelay = getShippingDelay(getShippingDelayRaw(productPageDocument));
       product.setShippingDelay(shippingDelay);
       logger.debug("Shipping delay : " + shippingDelay);
 
       int quantity = 0;
+      try {
+         quantity = getQuantity(productPageDocument);
+      } catch (Exception e) {
+         logger.error(e.getMessage() + " on " + page.getUrl());
+      }
       product.setQuantity(quantity);
       logger.debug("Quantity : " + quantity);
 
@@ -206,26 +213,25 @@ public class CrawlOffer {
    }
 
    private int getShippingDelay(final String delayRaw) {// TODO
-      // if (StringUtils.isNotBlank(delayRaw)) {
-      // final String lcRawDelivery = StringUtils.lowerCase(delayRaw);
-      // final DateTime when = parseLocalizedDeliveryDate(lcRawDelivery, url);
-      // if (when != null) {
-      // int delivery = getDeliveryDaysBetween(DateTime.now(), when);
-      // if (delivery == 0) {
-      // return 1;
-      // }
-      // return delivery;
-      // }
-      // }
-      return 2;
+      if (StringUtils.isNotBlank(delayRaw)) {
+         final String lcRawDelivery = StringUtils.lowerCase(delayRaw);
+         final DateTime when = parseLocalizedDeliveryDate(lcRawDelivery);
+         if (when != null) {
+            int delivery = getDeliveryDaysBetween(DateTime.now(), when);
+            // if (delivery == 0) {
+            // return 1;
+            // }
+            return delivery;
+         }
+      }
+      return 0;
    }
 
    private String getShippingDelayRaw(final Element element) {
-      // Element shippingDelayElement = findElement(element, "Raw delivery selector ...");// TODO
-      // String shippingDelayRaw = fromElementText(shippingDelayElement);
-      // shippingDelayRaw = validateField(shippingDelayRaw, "Raw delivery", 1);
-      // return shippingDelayRaw;
-      return null;
+      Element shippingDelayElement = findElement(element, Selectors.PRODUCT_DELIVERY);// TODO
+      String shippingDelayRaw = fromElementText(shippingDelayElement);
+      shippingDelayRaw = validateField(shippingDelayRaw, "Raw delivery", 1);
+      return shippingDelayRaw;
    }
 
    private int getDeliveryDaysBetween(final DateTime reference, final DateTime when) {
@@ -246,8 +252,19 @@ public class CrawlOffer {
       return null;
    }
 
-   private DateTime parseLocalizedDeliveryDate(final String rawDelivery, final String url) {
-      if (isExpressedAsPeriod(rawDelivery)) { // Ex : rawDelivery -> "livraison sous 5 jours"
+   // private DateTime parseLocalizedDeliveryDate(final String rawDelivery, final String url) {
+   // if (isExpressedAsPeriod(rawDelivery)) { // Ex : rawDelivery -> "livraison sous 5 jours"
+   // return parseLocalizedPeriodDelivery(rawDelivery);
+   // }
+   // if (isExpressedAsDate(rawDelivery)) { // Ex : rawDelivery -> "date de livraison : 02-05-2016"
+   // return parseLocalizedDateDelivery(rawDelivery);
+   // }
+   // logger.error("New form of raw delivery found [" + rawDelivery + "]");
+   // return null;
+   // }
+
+   private DateTime parseLocalizedDeliveryDate(final String rawDelivery) {
+      if (isExpressedAsPeriod(rawDelivery)) {
          return parseLocalizedPeriodDelivery(rawDelivery);
       }
       if (isExpressedAsDate(rawDelivery)) { // Ex : rawDelivery -> "date de livraison : 02-05-2016"
@@ -271,11 +288,15 @@ public class CrawlOffer {
    }
 
    private DateTime parseLocalizedPeriodDelivery(final String rawDelivery) {
-      final String delivery = cleanDeliveryToGetParseablePeriodText(rawDelivery); // Ex : delivery -> "2 semaines"
+      String delivery = cleanDeliveryToGetParseablePeriodText(rawDelivery); // Ex : delivery -> "2 semaines"
+      if (delivery.matches("\\d+h")) {
+         delivery = "" + Integer.parseInt(delivery.replaceAll("[^\\d]", "")) / 24 + " jours";
+      }
       try {
          final PeriodFormatter periodFormatter = PeriodFormat.wordBased(CURRENT_LOCALE);
          final Period period = periodFormatter.parsePeriod(delivery);
          return new DateTime().plus(period).plusHours(5);
+
       } catch (Exception exc) {
          logger.error("Delivery period not parseable [" + delivery + "]");
          // conn.debug(ExceptionUtils.getStackTrace(exc));
@@ -283,8 +304,11 @@ public class CrawlOffer {
       return null;
    }
 
-   private String cleanDeliveryToGetParseablePeriodText(final String rawDelivery) {
+   private String cleanDeliveryToGetParseablePeriodText(String rawDelivery) {
       // TODO
+      if (rawDelivery.contains(SpecialChar.FRENCH_PREPOSITION_A)) {
+         rawDelivery = rawDelivery.substring(rawDelivery.indexOf(SpecialChar.FRENCH_PREPOSITION_A));
+      }
       Matcher matcher = Pattern.compile("\\d+\\s*\\p{L}+").matcher(rawDelivery); // TODO
       if (matcher.find()) {
          return matcher.group(0);
@@ -297,7 +321,7 @@ public class CrawlOffer {
    }
 
    private boolean isExpressedAsPeriod(final String rawDelivery) {
-      return StringUtils.contains(rawDelivery, "%Delivery period identifier%"); // TODO
+      return StringUtils.endsWith(rawDelivery, "h"); // TODO
    }
 
    private float parseLocalizedPrice(final String priceRaw) {

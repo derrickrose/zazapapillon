@@ -13,7 +13,7 @@ public class Selectors {
    public static final String PRODUCT_IMAGE = "img#main-product-image";
    public static final String PRODUCT_PRICE = "span[id*=product-price]";
    public static final String PRODUCT_QUANTITY = "p.availability.in-stock>span";
-   public static final String PRODUCT_DELIVERY = "div.delay-livraison>div";
+   public static final String PRODUCT_DELIVERY = "div.delay-livraison>div:contains(Livraison)";
 
    // listing page
    public static final String LISTING_PAGE_IDENTIFIER = "ul.products-grid>li";

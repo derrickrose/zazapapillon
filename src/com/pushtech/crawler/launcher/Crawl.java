@@ -36,8 +36,12 @@ public class Crawl {
             offerCrawling(page, urlToConnect);
          } else if (PageType.isListingPage(page)) {
             listingCrawling(page);
-         } else if (entryPointUrl.equals("http://www.zazapapillon.fr/") || entryPointUrl.endsWith("http://www.zazapapillon.fr/")) {
-            homeCrawling(page);// home page � faire
+         }
+         // else if (entryPointUrl.equals("http://www.zazapapillon.fr/") || entryPointUrl.endsWith("http://www.zazapapillon.fr/")) {
+         // homeCrawling(page);// home page � faire
+         // }
+         else if (PageType.isHomePage(page)) {
+            homeCrawling(page);
          }
       } catch (Exception e) {
          SwingUtilities.invokeLater(new Runnable() {
